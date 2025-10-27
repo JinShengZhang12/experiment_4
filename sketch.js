@@ -49,6 +49,12 @@ function setup() {
   resetButton.mousePressed(startResetAnimation);
 }
 
+// 触摸设备支持
+function touchStarted() {
+  // 防止其他默认行为干扰按钮点击
+  return false; 
+}
+
 function draw() {
   background(245);
 
@@ -218,7 +224,7 @@ class StemPiece {
 
   pressed() {
     if (mouseX > this.x && mouseX < this.x + this.w &&
-        mouseY > this.y && mouseY < this.y + this.h) {
+      mouseY > this.y && mouseY < this.y + this.h) {
       this.dragging = true;
       this.offsetX = this.x - mouseX;
       this.offsetY = this.y - mouseY;
@@ -233,7 +239,7 @@ class StemPiece {
   insideWater(tx, ty, tw, th, waterH) {
     let waterTop = ty + th - waterH;
     return (this.x > tx && this.x < tx + tw &&
-            this.y + this.h > waterTop && this.y < ty + th);
+      this.y + this.h > waterTop && this.y < ty + th);
   }
 }
 
