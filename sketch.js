@@ -18,33 +18,33 @@ function setup() {
   createCanvas(600, 500); // 固定大小
 
   let buttonWidth = 120;
-  let buttonHeight = 40;
+  let buttonHeight = 50; // 按钮高度加大，确保触摸设备可以更容易点击
 
-  // 设置按钮位置和大小
+  // 设置按钮位置和大小，避免重叠
   cutButton = createButton("剪切");
   cutButton.position(20, 20);
   cutButton.size(buttonWidth, buttonHeight);
   cutButton.mousePressed(cutStem);
 
   crossButton = createButton("横切面");
-  crossButton.position(80, 20);
+  crossButton.position(160, 20);  // 调整按钮间距
   crossButton.size(buttonWidth, buttonHeight);
   crossButton.mousePressed(() => { hasSeenCross = true; });
 
   longButton = createButton("纵切面");
-  longButton.position(150, 20);
+  longButton.position(300, 20);  // 调整按钮间距
   longButton.size(buttonWidth, buttonHeight);
   longButton.mousePressed(() => { hasSeenLong = true; });
 
   restartButton = createButton("再看一次");
-  restartButton.position(320, 20);
+  restartButton.position(440, 20); // 调整按钮位置
   restartButton.size(buttonWidth, buttonHeight);
   restartButton.mousePressed(() => {
     if (inTank) waterProgress = 0;
   });
 
   resetButton = createButton("复原");
-  resetButton.position(400, 20);
+  resetButton.position(580, 20); // 调整按钮位置
   resetButton.size(buttonWidth, buttonHeight);
   resetButton.mousePressed(startResetAnimation);
 }
