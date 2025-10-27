@@ -15,28 +15,37 @@ let tankX = 420, tankY = 180, tankW = 120, tankH = 160; // 高度从200减到160
 let baseWaterHeight = 60; // 初始水位高度（原来20，现在改成60）
 
 function setup() {
-  createCanvas(600, 500);
+  createCanvas(windowWidth, windowHeight); // 自适应窗口大小
+
+  // 调整按钮位置和大小，以便触控设备上适用
+  let buttonWidth = 120;
+  let buttonHeight = 40;
 
   cutButton = createButton("剪切");
   cutButton.position(20, 20);
+  cutButton.size(buttonWidth, buttonHeight);
   cutButton.mousePressed(cutStem);
 
   crossButton = createButton("横切面");
   crossButton.position(80, 20);
-  crossButton.mousePressed(()=>{ hasSeenCross = true; });
+  crossButton.size(buttonWidth, buttonHeight);
+  crossButton.mousePressed(() => { hasSeenCross = true; });
 
   longButton = createButton("纵切面");
   longButton.position(150, 20);
-  longButton.mousePressed(()=>{ hasSeenLong = true; });
+  longButton.size(buttonWidth, buttonHeight);
+  longButton.mousePressed(() => { hasSeenLong = true; });
 
   restartButton = createButton("再看一次");
   restartButton.position(320, 20);
-  restartButton.mousePressed(()=>{ 
-    if (inTank) waterProgress = 0; 
+  restartButton.size(buttonWidth, buttonHeight);
+  restartButton.mousePressed(() => {
+    if (inTank) waterProgress = 0;
   });
 
   resetButton = createButton("复原");
   resetButton.position(400, 20);
+  resetButton.size(buttonWidth, buttonHeight);
   resetButton.mousePressed(startResetAnimation);
 }
 
@@ -79,7 +88,7 @@ function draw() {
     }
     fill(0);
     textAlign(CENTER);
-    text("切下的茎段", stemPiece.x + stemPiece.w/2, stemPiece.y + stemPiece.h + 15);
+    text("切下的茎段", stemPiece.x + stemPiece.w / 2, stemPiece.y + stemPiece.h + 15);
   }
 
   // 如果在水槽中 → 更新切面显示
@@ -104,9 +113,9 @@ function drawOriginalStem() {
 function drawCrossSection(x, y, r) {
   fill(230, 255, 230);
   stroke(0);
-  ellipse(x, y, r*2, r*2);
+  ellipse(x, y, r * 2, r * 2);
 
-  for (let angle = 0; angle < TWO_PI; angle += PI/6) {
+  for (let angle = 0; angle < TWO_PI; angle += PI / 6) {
     let bx = x + cos(angle) * (r * 0.6);
     let by = y + sin(angle) * (r * 0.6);
     fill(100, 200, 100);
@@ -114,7 +123,7 @@ function drawCrossSection(x, y, r) {
   }
 
   fill(200, 150, 100);
-  ellipse(x, y, r*0.8, r*0.8);
+  ellipse(x, y, r * 0.8, r * 0.8);
 
   fill(0);
   noStroke();
@@ -126,24 +135,24 @@ function drawCrossSection(x, y, r) {
 function drawCrossSectionWater(x, y, r, p) {
   noStroke();
   fill(255, 0, 0, 120); // 红色水
-  for (let angle = 0; angle < TWO_PI; angle += PI/6) {
+  for (let angle = 0; angle < TWO_PI; angle += PI / 6) {
     let bx = x + cos(angle) * (r * 0.6);
     let by = y + sin(angle) * (r * 0.6);
-    ellipse(bx, by, 14*p, 14*p);
+    ellipse(bx, by, 14 * p, 14 * p);
   }
 }
 
 // 纵切面
 function drawLongSection(x, y, w, h) {
   stroke(0);
-  fill(230,255,230);
+  fill(230, 255, 230);
   rect(x - w / 2, y - h / 2, w, h);
 
   // 画两条粗绿色线，分别位于两侧
   stroke(120, 200, 120);
-  strokeWeight(4);  // 增加线的粗细
-  line(x - w / 4, y - h / 2, x - w / 4, y + h / 2);  // 左侧绿色线
-  line(x + w / 4, y - h / 2, x + w / 4, y + h / 2);  // 右侧绿色线
+  strokeWeight(4); // 增加线的粗细
+  line(x - w / 4, y - h / 2, x - w / 4, y + h / 2); // 左侧绿色线
+  line(x + w / 4, y - h / 2, x + w / 4, y + h / 2); // 右侧绿色线
 
   fill(0);
   noStroke();
@@ -171,30 +180,33 @@ function drawTank() {
   rect(tankX, tankY, tankW, tankH);
 
   fill(255, 0, 0, 120); // 红色水
-  rect(tankX, tankY+tankH-baseWaterHeight, tankW, baseWaterHeight);
+  rect(tankX, tankY + tankH - baseWaterHeight, tankW, baseWaterHeight);
 
   fill(0);
   noStroke();
   textAlign(CENTER);
-  text("水槽", tankX + tankW/2, tankY + tankH + 20);
+  text("水槽", tankX + tankW / 2, tankY + tankH + 20);
 }
 
 // ========== 茎段类 ========== 
 class StemPiece {
   constructor(x, y, w, h) {
-    this.x = x; this.y = y;
-    this.w = w; this.h = h;
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
     this.dragging = false;
-    this.offsetX = 0; this.offsetY = 0;
+    this.offsetX = 0;
+    this.offsetY = 0;
   }
 
   show() {
     // 画成一个立体的圆柱
-    fill(80,200,80);
+    fill(80, 200, 80);
     rect(this.x, this.y, this.w, this.h);
-    fill(100,220,100);
-    ellipse(this.x+this.w/2, this.y, this.w, 15); // 上圆面
-    ellipse(this.x+this.w/2, this.y+this.h, this.w, 15); // 下圆面
+    fill(100, 220, 100);
+    ellipse(this.x + this.w / 2, this.y, this.w, 15); // 上圆面
+    ellipse(this.x + this.w / 2, this.y + this.h, this.w, 15); // 下圆面
   }
 
   drag(allowed) {
@@ -213,23 +225,29 @@ class StemPiece {
     }
   }
 
-  released() { this.dragging = false; }
+  released() {
+    this.dragging = false;
+  }
 
   // 只检测水区
   insideWater(tx, ty, tw, th, waterH) {
     let waterTop = ty + th - waterH;
-    return (this.x > tx && this.x < tx+tw &&
-            this.y+this.h > waterTop && this.y < ty+th);
+    return (this.x > tx && this.x < tx + tw &&
+            this.y + this.h > waterTop && this.y < ty + th);
   }
 }
 
-// 鼠标事件
-function mousePressed() {
+// 鼠标/触摸事件
+function touchStarted() {
   if (stemPiece) stemPiece.pressed();
+  return false; // 防止默认触摸事件
 }
-function mouseReleased() {
+
+function touchEnded() {
   if (stemPiece) stemPiece.released();
+  return false;
 }
+
 function cutStem() {
   if (!stemCut) {
     stemPiece = new StemPiece(430, 50, 40, 60); // 位置调高 y=50
@@ -253,4 +271,5 @@ function performReset() {
   waterProgress = 0;
   resetAlpha = 0; // 复原后从透明开始，再慢慢显现
 }
+
 
