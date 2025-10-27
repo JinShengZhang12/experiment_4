@@ -137,27 +137,31 @@ function drawCrossSectionWater(x, y, r, p) {
 function drawLongSection(x, y, w, h) {
   stroke(0);
   fill(230,255,230);
-  rect(x-w/2, y-h/2, w, h);
+  rect(x - w / 2, y - h / 2, w, h);
 
-  for (let i= -w/2+10; i<=w/2-10; i+=15) {
-    stroke(120,200,120);
-    line(x+i, y-h/2, x+i, y+h/2);
-  }
+  // 画两条粗绿色线，分别位于两侧
+  stroke(120, 200, 120);
+  strokeWeight(4);  // 增加线的粗细
+  line(x - w / 4, y - h / 2, x - w / 4, y + h / 2);  // 左侧绿色线
+  line(x + w / 4, y - h / 2, x + w / 4, y + h / 2);  // 右侧绿色线
 
   fill(0);
   noStroke();
   textAlign(CENTER);
-  text("茎的纵切面", x, y + h/2 + 20);
+  text("茎的纵切面", x, y + h / 2 + 20);
 }
 
 // 纵切面水柱
 function drawLongSectionWater(x, y, w, h, p) {
   noStroke();
   fill(255, 0, 0, 150); // 红色水
-  for (let i = -w/2 + 10; i <= w/2 - 10; i += 15) {
-    let waterHeight = h * p;
-    rect(x + i, y + h / 2 - waterHeight, 10, waterHeight);
-  }
+
+  // 计算水柱的高度
+  let waterHeight = h * p;
+
+  // 仅在绿色线的区域绘制水柱
+  rect(x - w / 4 - 5, y + h / 2 - waterHeight, 10, waterHeight); // 左侧绿色线上的水柱
+  rect(x + w / 4 - 5, y + h / 2 - waterHeight, 10, waterHeight); // 右侧绿色线上的水柱
 }
 
 // 水槽
