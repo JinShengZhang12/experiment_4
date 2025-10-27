@@ -51,8 +51,23 @@ function setup() {
 
 // 触摸设备支持
 function touchStarted() {
-  // 防止其他默认行为干扰按钮点击
-  return false; 
+  // 触发鼠标点击事件，模拟触摸
+  mousePressed();
+  return false; // 防止其他默认行为干扰按钮点击
+}
+
+function touchMoved() {
+  // 允许拖动时的操作
+  if (stemPiece) {
+    stemPiece.drag(true); // 开始拖动
+  }
+  return false; // 防止其他默认行为
+}
+
+function touchEnded() {
+  // 触摸结束时，执行释放操作
+  if (stemPiece) stemPiece.released();
+  return false;
 }
 
 function draw() {
@@ -197,17 +212,13 @@ function drawTank() {
 // ========== 茎段类 ========== 
 class StemPiece {
   constructor(x, y, w, h) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
+    this.x = x; this.y = y;
+    this.w = w; this.h = h;
     this.dragging = false;
-    this.offsetX = 0;
-    this.offsetY = 0;
+    this.offsetX = 0; this.offsetY = 0;
   }
 
   show() {
-    // 画成一个立体的圆柱
     fill(80, 200, 80);
     rect(this.x, this.y, this.w, this.h);
     fill(100, 220, 100);
@@ -224,36 +235,30 @@ class StemPiece {
 
   pressed() {
     if (mouseX > this.x && mouseX < this.x + this.w &&
-      mouseY > this.y && mouseY < this.y + this.h) {
+        mouseY > this.y && mouseY < this.y + this.h) {
       this.dragging = true;
       this.offsetX = this.x - mouseX;
       this.offsetY = this.y - mouseY;
     }
   }
 
-  released() {
-    this.dragging = false;
-  }
+  released() { this.dragging = false; }
 
   // 只检测水区
   insideWater(tx, ty, tw, th, waterH) {
     let waterTop = ty + th - waterH;
     return (this.x > tx && this.x < tx + tw &&
-      this.y + this.h > waterTop && this.y < ty + th);
+            this.y + this.h > waterTop && this.y < ty + th);
   }
 }
 
-// 鼠标/触摸事件
-function touchStarted() {
+// 鼠标事件
+function mousePressed() {
   if (stemPiece) stemPiece.pressed();
-  return false; // 防止默认触摸事件
 }
-
-function touchEnded() {
+function mouseReleased() {
   if (stemPiece) stemPiece.released();
-  return false;
 }
-
 function cutStem() {
   if (!stemCut) {
     stemPiece = new StemPiece(430, 50, 40, 60); // 位置调高 y=50
