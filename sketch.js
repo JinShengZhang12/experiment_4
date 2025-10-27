@@ -15,91 +15,36 @@ let tankX = 420, tankY = 180, tankW = 120, tankH = 160; // 高度从200减到160
 let baseWaterHeight = 60; // 初始水位高度（原来20，现在改成60）
 
 function setup() {
-  createCanvas(600, 500); // 固定大小
+  createCanvas(600, 500);
 
-  let buttonWidth = 120;
-  let buttonHeight = 50; // 按钮高度加大，确保触摸设备可以更容易点击
-
-  // 设置按钮位置和大小，避免重叠
   cutButton = createButton("剪切");
   cutButton.position(20, 20);
-  cutButton.size(buttonWidth, buttonHeight);
   cutButton.mousePressed(cutStem);
+  cutButton.touchStarted(cutStem);  // 触摸屏支持
 
   crossButton = createButton("横切面");
-  crossButton.position(160, 20);  // 调整按钮间距
-  crossButton.size(buttonWidth, buttonHeight);
+  crossButton.position(80, 20);
   crossButton.mousePressed(() => { hasSeenCross = true; });
+  crossButton.touchStarted(() => { hasSeenCross = true; });  // 触摸屏支持
 
   longButton = createButton("纵切面");
-  longButton.position(300, 20);  // 调整按钮间距
-  longButton.size(buttonWidth, buttonHeight);
+  longButton.position(150, 20);
   longButton.mousePressed(() => { hasSeenLong = true; });
+  longButton.touchStarted(() => { hasSeenLong = true; });  // 触摸屏支持
 
   restartButton = createButton("再看一次");
-  restartButton.position(440, 20); // 调整按钮位置
-  restartButton.size(buttonWidth, buttonHeight);
-  restartButton.mousePressed(() => {
-    if (inTank) waterProgress = 0;
+  restartButton.position(320, 20);
+  restartButton.mousePressed(() => { 
+    if (inTank) waterProgress = 0; 
   });
+  restartButton.touchStarted(() => { 
+    if (inTank) waterProgress = 0; 
+  });  // 触摸屏支持
 
   resetButton = createButton("复原");
-  resetButton.position(580, 20); // 调整按钮位置
-  resetButton.size(buttonWidth, buttonHeight);
+  resetButton.position(400, 20);
   resetButton.mousePressed(startResetAnimation);
-
-  // 调整按钮尺寸（延迟确保 DOM 渲染完成）
-  setTimeout(() => {
-    adjustButtonSize(cutButton);
-    adjustButtonSize(crossButton);
-    adjustButtonSize(longButton);
-    adjustButtonSize(restartButton);
-    adjustButtonSize(resetButton);
-  }, 30);
-}
-
-// 动态调整按钮尺寸
-function adjustButtonSize(button) {
-  try {
-    let sw = button.elt.offsetWidth || 80;
-    let sh = button.elt.offsetHeight || 28;
-    button.size(sw * 2, sh * 2);
-  } catch (e) {
-    button.size(160, 56);
-  }
-}
-
-// 触摸设备支持
-function touchStarted() {
-  if (touches && touches.length > 0) {
-    handlePress(touches[0].x, touches[0].y);
-  }
-  return true; // 确保不会吞掉事件
-}
-
-function touchEnded() {
-  handleRelease();
-  return true;
-}
-
-function handlePress(mx, my) {
-  try {
-    const el = document.elementFromPoint(mx, my);
-    if (el === cutButton.elt || el === crossButton.elt || el === longButton.elt ||
-        el === restartButton.elt || el === resetButton.elt) {
-      return; // 触摸发生在按钮上时，阻止继续处理
-    }
-  } catch (e) {
-    // 忽略错误
-  }
-
-  if (stemPiece) stemPiece.pressed(mx, my);
-  // 其他元素交互代码...
-}
-
-function handleRelease() {
-  if (stemPiece) stemPiece.released();
-  // 其他元素交互代码...
+  resetButton.touchStarted(startResetAnimation);  // 触摸屏支持
 }
 
 function draw() {
@@ -141,7 +86,7 @@ function draw() {
     }
     fill(0);
     textAlign(CENTER);
-    text("切下的茎段", stemPiece.x + stemPiece.w / 2, stemPiece.y + stemPiece.h + 15);
+    text("切下的茎段", stemPiece.x + stemPiece.w/2, stemPiece.y + stemPiece.h + 15);
   }
 
   // 如果在水槽中 → 更新切面显示
@@ -230,54 +175,99 @@ function drawLongSectionWater(x, y, w, h, p) {
 function drawTank() {
   stroke(0);
   noFill();
-  rect(tankX, tankY, tankW, tankH); // 绘制水槽
+  rect(tankX, tankY, tankW, tankH);
 
-  // 绘制水位
-  fill(0, 150, 255, 100);
-  rect(tankX, tankY + tankH - baseWaterHeight * (1 - waterProgress), tankW, baseWaterHeight * waterProgress);
+  fill(255, 0, 0, 120); // 红色水
+  rect(tankX, tankY + tankH - baseWaterHeight, tankW, baseWaterHeight);
+
+  fill(0);
+  noStroke();
+  textAlign(CENTER);
+  text("水槽", tankX + tankW / 2, tankY + tankH + 20);
 }
 
-// 启动复原动画
+// ========== 茎段类 ========== 
+class StemPiece {
+  constructor(x, y, w, h) {
+    this.x = x; this.y = y;
+    this.w = w; this.h = h;
+    this.dragging = false;
+    this.offsetX = 0; this.offsetY = 0;
+  }
+
+  show() {
+    // 画成一个立体的圆柱
+    fill(80,200,80);
+    rect(this.x, this.y, this.w, this.h);
+    fill(100,220,100);
+    ellipse(this.x + this.w / 2, this.y, this.w, 15); // 上圆面
+    ellipse(this.x + this.w / 2, this.y + this.h, this.w, 15); // 下圆面
+  }
+
+  drag(allowed) {
+    if (allowed && this.dragging) {
+      this.x = mouseX + this.offsetX;
+      this.y = mouseY + this.offsetY;
+    }
+  }
+
+  pressed() {
+    if (mouseX > this.x && mouseX < this.x + this.w &&
+        mouseY > this.y && mouseY < this.y + this.h) {
+      this.dragging = true;
+      this.offsetX = this.x - mouseX;
+      this.offsetY = this.y - mouseY;
+    }
+  }
+
+  released() { this.dragging = false; }
+
+  // 只检测水区
+  insideWater(tx, ty, tw, th, waterH) {
+    let waterTop = ty + th - waterH;
+    return (this.x > tx && this.x < tx + tw &&
+            this.y + this.h > waterTop && this.y < ty + th);
+  }
+}
+
+// 鼠标事件
+function mousePressed() {
+  if (stemPiece) stemPiece.pressed();
+}
+function mouseReleased() {
+  if (stemPiece) stemPiece.released();
+}
+
+// 触摸事件
+function touchStarted() {
+  if (stemPiece) stemPiece.pressed();
+  return false;  // 防止默认行为
+}
+function touchEnded() {
+  if (stemPiece) stemPiece.released();
+}
+
+// 剪切茎段
+function cutStem() {
+  if (!stemCut) {
+    stemPiece = new StemPiece(430, 50, 40, 60); // 位置调高 y=50
+    stemCut = true;
+  }
+}
+
+// 开始复原动画
 function startResetAnimation() {
   resetting = true;
   resetAlpha = 255;
 }
 
-// 茎段
-class StemPiece {
-  constructor(x, y, w, h) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.dragging = false;
-  }
-  
-  show() {
-    fill(80, 200, 80);
-    rect(this.x, this.y, this.w, this.h);
-  }
-
-  pressed(mx, my) {
-    if (mx > this.x && mx < this.x + this.w && my > this.y && my < this.y + this.h) {
-      this.dragging = true;
-      this.offX = this.x - mx;
-      this.offY = this.y - my;
-    }
-  }
-
-  released() {
-    this.dragging = false;
-  }
-
-  drag(canMove) {
-    if (this.dragging && canMove) {
-      this.x = mouseX + this.offX;
-      this.y = mouseY + this.offY;
-    }
-  }
-
-  insideWater(x, y, w, h, baseHeight) {
-    return this.x >= x && this.x <= x + w && this.y + this.h >= y + baseHeight;
-  }
+// 真正复原
+function performReset() {
+  stemCut = false;
+  stemPiece = null;
+  hasSeenCross = false;
+  hasSeenLong = false;
+  inTank = false;
+  waterProgress = 0;
+  resetAlpha = 0; // 复原后从透明开始，再慢慢显现
 }
