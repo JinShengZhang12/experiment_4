@@ -15,12 +15,12 @@ let tankX = 420, tankY = 180, tankW = 120, tankH = 160; // 高度从200减到160
 let baseWaterHeight = 60; // 初始水位高度（原来20，现在改成60）
 
 function setup() {
-  createCanvas(windowWidth, windowHeight); // 自适应窗口大小
+  createCanvas(600, 500); // 固定大小
 
-  // 调整按钮位置和大小，以便触控设备上适用
   let buttonWidth = 120;
   let buttonHeight = 40;
 
+  // 设置按钮位置和大小
   cutButton = createButton("剪切");
   cutButton.position(20, 20);
   cutButton.size(buttonWidth, buttonHeight);
@@ -271,5 +271,3 @@ function performReset() {
   waterProgress = 0;
   resetAlpha = 0; // 复原后从透明开始，再慢慢显现
 }
-
-
