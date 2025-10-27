@@ -125,7 +125,7 @@ function drawCrossSection(x, y, r) {
 // 横切面水染色
 function drawCrossSectionWater(x, y, r, p) {
   noStroke();
-  fill(160,100,200,120); // 紫色水
+  fill(255, 0, 0, 120); // 红色水
   for (let angle = 0; angle < TWO_PI; angle += PI/6) {
     let bx = x + cos(angle) * (r * 0.6);
     let by = y + sin(angle) * (r * 0.6);
@@ -153,8 +153,11 @@ function drawLongSection(x, y, w, h) {
 // 纵切面水柱
 function drawLongSectionWater(x, y, w, h, p) {
   noStroke();
-  fill(160,100,200,150); // 紫色水
-  rect(x-w/2, y+h/2 - h*p, w, h*p);
+  fill(255, 0, 0, 150); // 红色水
+  for (let i = -w/2 + 10; i <= w/2 - 10; i += 15) {
+    let waterHeight = h * p;
+    rect(x + i, y + h / 2 - waterHeight, 10, waterHeight);
+  }
 }
 
 // 水槽
@@ -163,7 +166,7 @@ function drawTank() {
   noFill();
   rect(tankX, tankY, tankW, tankH);
 
-  fill(160,100,200,120); // 紫色水
+  fill(255, 0, 0, 120); // 红色水
   rect(tankX, tankY+tankH-baseWaterHeight, tankW, baseWaterHeight);
 
   fill(0);
@@ -172,7 +175,7 @@ function drawTank() {
   text("水槽", tankX + tankW/2, tankY + tankH + 20);
 }
 
-// ========== 茎段类 ==========
+// ========== 茎段类 ========== 
 class StemPiece {
   constructor(x, y, w, h) {
     this.x = x; this.y = y;
@@ -246,3 +249,4 @@ function performReset() {
   waterProgress = 0;
   resetAlpha = 0; // 复原后从透明开始，再慢慢显现
 }
+
